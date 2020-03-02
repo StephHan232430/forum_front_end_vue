@@ -23,10 +23,13 @@
             <li><strong>{{ user.followersLength }}</strong> followers (追隨者)</li>
           </ul>
           <p v-if="isCurrentUser">
-            <a href="/users/1/edit"><button
-              type="submit"
+            <router-link
+              :to="{ name: 'user-profile-edit', params: { id: currentUser.id } }"
+              role="button"
               class="btn btn-primary"
-            >edit</button></a>
+            >
+              edit
+            </router-link>
           </p>
           <p v-else>
             <button
@@ -53,7 +56,6 @@
 </template>
 
 <script>
-
 export default {
   props: {
     user: {
@@ -66,6 +68,10 @@ export default {
     },
     initialIsFollowed: {
       type: Boolean,
+      required: true
+    },
+    currentUser: {
+      type: Object,
       required: true
     }
   },

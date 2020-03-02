@@ -7,6 +7,7 @@
           :user="user"
           :is-current-user="currentUser.id === user.id"
           :initial-is-followed="isFollowed"
+          :current-user="currentUser"
         />
 
         <div class="row">

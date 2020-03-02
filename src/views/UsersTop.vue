@@ -11,13 +11,13 @@
         :key="user.id"
         class="col-3"
       >
-        <a href="#">
+        <router-link :to="{ name: 'user-profile', params: { id: user.id } }">
           <img
             :src="user.image"
             width="140px"
             height="140px"
           >
-        </a>
+        </router-link>
         <h2>{{ user.name }}</h2>
         <span class="badge badge-secondary">追蹤人數：{{ user.FollowerCount }}</span>
         <p class="mt-3">
@@ -53,7 +53,7 @@ const dummyData = {
       email: 'root@example.com',
       password: '$2a$10$J9pLpJJ1Tzfe/ZcjdYwXdumyh.3F5E.w/HTxRcH./cl3azhgekgQe',
       isAdmin: true,
-      image: null,
+      image: 'https://i.imgur.com/58ImzMM.png',
       createdAt: '2020-02-28T14:38:32.000Z',
       updatedAt: '2020-02-28T14:38:32.000Z',
       Followers: [
@@ -83,7 +83,7 @@ const dummyData = {
       email: 'user1@example.com',
       password: '$2a$10$NyaAtgRuHx3i7hHlnb5IXOC4Uk4.q1J1iQs3op.ymdCEh7.tOwcH2',
       isAdmin: false,
-      image: null,
+      image: 'https://i.imgur.com/Q14p2le.jpg',
       createdAt: '2020-02-28T14:38:32.000Z',
       updatedAt: '2020-02-28T14:38:32.000Z',
       Followers: [
@@ -93,7 +93,7 @@ const dummyData = {
           email: 'root@example.com',
           password: '$2a$10$J9pLpJJ1Tzfe/ZcjdYwXdumyh.3F5E.w/HTxRcH./cl3azhgekgQe',
           isAdmin: true,
-          image: null,
+          image: 'https://i.imgur.com/58ImzMM.png',
           createdAt: '2020-02-28T14:38:32.000Z',
           updatedAt: '2020-02-28T14:38:32.000Z',
           Followship: {
@@ -113,7 +113,7 @@ const dummyData = {
       email: 'user2@example.com',
       password: '$2a$10$VHKmtPqbcUzK46qxLllqj.w506U2N2TObMmnpdlNG2CLZPa1xzuTi',
       isAdmin: false,
-      image: null,
+      image: 'https://i.imgur.com/OezkRwO.jpg',
       createdAt: '2020-02-28T14:38:32.000Z',
       updatedAt: '2020-02-28T14:38:32.000Z',
       Followers: [],
