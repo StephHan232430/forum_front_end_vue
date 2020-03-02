@@ -58,8 +58,8 @@ export default {
       default: 1
     },
     categoryId: {
-      type: Number,
-      default: -1
+      type: String,
+      default: ''
     }
   },
   computed: {
