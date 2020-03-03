@@ -40,6 +40,7 @@
       <button
         class="btn btn-lg btn-primary btn-block mb-3"
         type="submit"
+        :disabled="isProcessing"
       >
         Submit
       </button>
@@ -60,22 +61,44 @@
 </template>
 
 <script>
+import authorizationAPI from '../apis/authorization'
+import { Toast } from '../utils/helpers'
 export default {
   name: 'SignIn',
   data() {
     return {
       email: '',
-      password: ''
+      password: '',
+      isProcessing: false
     }
   },
   methods: {
-    handleSubmit(e) {
-      const data = JSON.stringify({
-        email: this.email,
-        password: this.password
-      })
+    async handleSubmit(e) {
+      try {
+        if (!this.email || !this.password) {
+          Toast.fire({
+            icon: 'warning',
+            title: '請填入email和password'
+          })
+          return
+        }
 
-      console.log('data', data)
+        this.isProcessing = true
+        const response = await authorizationAPI.signIn({
+          email: this.email,
+          password: this.password
+        })
+        const { data } = response
+        localStorage.setItem('token', data.token)
+        this.$router.push('/restaurants')
+      } catch (error) {
+        this.password = ''
+        Toast.fire({
+          icon: 'warning',
+          title: '您輸入的帳號密碼錯誤'
+        })
+        this.isProcessing = false
+      }
     }
   }
 }
