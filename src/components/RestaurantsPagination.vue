@@ -58,7 +58,7 @@ export default {
       default: 1
     },
     categoryId: {
-      type: String,
+      type: [String, Number],
       default: ''
     }
   },
