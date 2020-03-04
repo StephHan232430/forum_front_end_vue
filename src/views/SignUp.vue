@@ -19,7 +19,7 @@
           type="text"
           class="form-control"
           placeholder="name"
-          required
+
           autofocus
         >
       </div>
@@ -33,7 +33,6 @@
           type="email"
           class="form-control"
           placeholder="email"
-          required
         >
       </div>
 
@@ -46,7 +45,6 @@
           type="password"
           class="form-control"
           placeholder="Password"
-          required
         >
       </div>
 
@@ -59,13 +57,13 @@
           type="password"
           class="form-control"
           placeholder="Password"
-          required
         >
       </div>
 
       <button
         class="btn btn-lg btn-primary btn-block mb-3"
         type="submit"
+        :disabled="isProcessing"
       >
         Submit
       </button>
@@ -86,6 +84,8 @@
 </template>
 
 <script>
+import authorizationAPI from '../apis/authorization'
+import { Toast } from '../utils/helpers.js'
 export default {
   name: 'SignUp',
   data() {
@@ -93,18 +93,59 @@ export default {
       name: '',
       email: '',
       password: '',
-      passwordCheck: ''
+      passwordCheck: '',
+      isProcessing: false
     }
   },
   methods: {
-    handleSubmit(e) {
-      const data = JSON.stringify({
-        name: this.name,
-        email: this.email,
-        password: this.password,
-        passwordCheck: this.passwordCheck
-      })
-      console.log(data)
+    async handleSubmit(e) {
+      try {
+        if (!this.name || !this.email || !this.password || !this.passwordCheck) {
+          Toast.fire({
+            icon: 'warning',
+            title: '所有欄位皆為必填'
+          })
+          return
+        }
+
+        if (this.password !== this.passwordCheck) {
+          Toast.fire({
+            icon: 'warning',
+            title: 'Password與Password Check不符'
+          })
+          return
+        }
+
+        const { data, statusText } = await authorizationAPI.signUp({
+          name: this.name,
+          email: this.email,
+          password: this.password,
+          passwordCheck: this.passwordCheck
+        })
+
+        // console.log觀察，信箱重複時statusText: 'OK'，但back-end回傳的data狀態為 'error'，且data.message存放著back-end的錯誤訊息
+        if (statusText === 'OK' && data.status !== 'success') {
+          Toast.fire({
+            icon: 'warning',
+            title: data.message
+          })
+          // 其他錯誤，如：連線問題，丟給catch處理
+          if (statusText !== 'OK') {
+            throw new Error(statusText)
+          }
+        } else {
+          Toast.fire({
+            icon: 'success',
+            title: '註冊成功，請登入使用'
+          })
+          this.$router.push('/signin')
+        }
+      } catch (error) {
+        Toast.fire({
+          icon: 'error',
+          title: '無法註冊，請稍後再試'
+        })
+      }
     }
   }
 }
