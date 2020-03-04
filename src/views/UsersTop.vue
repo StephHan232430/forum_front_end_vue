@@ -25,7 +25,7 @@
             v-if="user.isFollowed"
             type="button"
             class="btn btn-danger"
-            @click.stop.prevent="deleteFollowship(user.id)"
+            @click.stop.prevent="removeFollowing(user.id)"
           >
             取消追蹤
           </button>
@@ -33,7 +33,7 @@
             v-else
             type="button"
             class="btn btn-primary"
-            @click.stop.prevent="addFollowship(user.id)"
+            @click.stop.prevent="addFollowing(user.id)"
           >
             追蹤
           </button>
@@ -45,83 +45,9 @@
 
 <script>
 import NavTabs from '../components/NavTabs'
-const dummyData = {
-  users: [
-    {
-      id: 1,
-      name: 'root',
-      email: 'root@example.com',
-      password: '$2a$10$J9pLpJJ1Tzfe/ZcjdYwXdumyh.3F5E.w/HTxRcH./cl3azhgekgQe',
-      isAdmin: true,
-      image: 'https://i.imgur.com/58ImzMM.png',
-      createdAt: '2020-02-28T14:38:32.000Z',
-      updatedAt: '2020-02-28T14:38:32.000Z',
-      Followers: [
-        {
-          id: 1,
-          name: 'root',
-          email: 'root@example.com',
-          password: '$2a$10$J9pLpJJ1Tzfe/ZcjdYwXdumyh.3F5E.w/HTxRcH./cl3azhgekgQe',
-          isAdmin: true,
-          image: null,
-          createdAt: '2020-02-28T14:38:32.000Z',
-          updatedAt: '2020-02-28T14:38:32.000Z',
-          Followship: {
-            followerId: 1,
-            followingId: 1,
-            createdAt: '2020-02-29T08:11:44.000Z',
-            updatedAt: '2020-02-29T08:11:44.000Z'
-          }
-        }
-      ],
-      FollowerCount: 1,
-      isFollowed: true
-    },
-    {
-      id: 2,
-      name: 'user1',
-      email: 'user1@example.com',
-      password: '$2a$10$NyaAtgRuHx3i7hHlnb5IXOC4Uk4.q1J1iQs3op.ymdCEh7.tOwcH2',
-      isAdmin: false,
-      image: 'https://i.imgur.com/Q14p2le.jpg',
-      createdAt: '2020-02-28T14:38:32.000Z',
-      updatedAt: '2020-02-28T14:38:32.000Z',
-      Followers: [
-        {
-          id: 1,
-          name: 'root',
-          email: 'root@example.com',
-          password: '$2a$10$J9pLpJJ1Tzfe/ZcjdYwXdumyh.3F5E.w/HTxRcH./cl3azhgekgQe',
-          isAdmin: true,
-          image: 'https://i.imgur.com/58ImzMM.png',
-          createdAt: '2020-02-28T14:38:32.000Z',
-          updatedAt: '2020-02-28T14:38:32.000Z',
-          Followship: {
-            followerId: 1,
-            followingId: 2,
-            createdAt: '2020-02-29T08:46:56.000Z',
-            updatedAt: '2020-02-29T08:46:56.000Z'
-          }
-        }
-      ],
-      FollowerCount: 1,
-      isFollowed: true
-    },
-    {
-      id: 3,
-      name: 'user2',
-      email: 'user2@example.com',
-      password: '$2a$10$VHKmtPqbcUzK46qxLllqj.w506U2N2TObMmnpdlNG2CLZPa1xzuTi',
-      isAdmin: false,
-      image: 'https://i.imgur.com/OezkRwO.jpg',
-      createdAt: '2020-02-28T14:38:32.000Z',
-      updatedAt: '2020-02-28T14:38:32.000Z',
-      Followers: [],
-      FollowerCount: 0,
-      isFollowed: false
-    }
-  ]
-}
+import usersAPI from '../apis/users'
+import { Toast } from '../utils/helpers'
+
 export default {
   components: {
     NavTabs
@@ -132,21 +58,68 @@ export default {
     }
   },
   created() {
-    return this.fetchUsers()
+    return this.fetchTopUsers()
   },
   methods: {
-    fetchUsers() {
-      this.users = dummyData.users
+    async fetchTopUsers() {
+      try {
+        const { data, statusText } = await usersAPI.getTopUsers()
+        if (statusText !== 'OK') {
+          throw new Error(statusText)
+        }
+        this.users = data.users
+      } catch (error) {
+        Toast.fire({
+          icon: 'error',
+          title: '無法取得美食達人，請稍後再試'
+        })
+      }
     },
-    addFollowship(id) {
-      const targetUser = this.users.find(user => user.id === id)
-      targetUser.isFollowed = true
-      targetUser.FollowerCount += 1
+    async addFollowing(userId) {
+      try {
+        const { data, statusText } = await usersAPI.addFollowing({ userId })
+        if (statusText !== 'OK' || data.status !== 'success') {
+          throw new Error(statusText)
+        }
+        this.users = this.users.map(user => {
+          if (user.id !== userId) {
+            return user
+          }
+          return {
+            ...user,
+            FollowerCount: user.FollowerCount + 1,
+            isFollowed: true
+          }
+        }).sort((a, b) => b.FollowerCount - a.FollowerCount)
+      } catch (error) {
+        Toast.fire({
+          icon: 'error',
+          title: '無法加入追蹤，請稍後再試'
+        })
+      }
     },
-    deleteFollowship(id) {
-      const targetUser = this.users.find(user => user.id === id)
-      targetUser.isFollowed = false
-      targetUser.FollowerCount -= 1
+    async removeFollowing(userId) {
+      try {
+        const { data, statusText } = await usersAPI.deleteFollowing({ userId })
+        if (statusText !== 'OK' || data.status !== 'success') {
+          throw new Error(statusText)
+        }
+        this.users = this.users.map(user => {
+          if (user.id !== userId) {
+            return user
+          }
+          return {
+            ...user,
+            FollowerCount: user.FollowerCount - 1,
+            isFollowed: false
+          }
+        }).sort((a, b) => b.FollowerCount - a.FollowerCount)
+      } catch (error) {
+        Toast.fire({
+          icon: 'error',
+          title: '無法取消追蹤，請稍後再試'
+        })
+      }
     }
   }
 }
