@@ -156,6 +156,14 @@ export default {
       isLoading: true
     }
   },
+  watch: {
+    initialRestaurant(restaurant) {
+      this.restautant = {
+        ...this.restaurant,
+        ...restaurant
+      }
+    }
+  },
   created() {
     this.fetchCategories()
     this.restaurant = {
@@ -166,6 +174,8 @@ export default {
   methods: {
     async fetchCategories() {
       try {
+        // 無論用何種方式到達/admin/restaurants/:id/edit，表單皆為空，但只要切換L178的boolean值後，到瀏覽器等待畫面自行重整，表單就又能帶出餐廳資訊。但送出修改後，console卻出現Unauthorized。
+        this.isLoading = true
         const { data, statusText } = await adminAPI.categories.get()
         if (statusText !== 'OK') {
           throw new Error(statusText)
@@ -198,6 +208,7 @@ export default {
           icon: 'warning',
           title: '請選擇餐廳類別'
         })
+        return
       }
       const form = e.target
       const formData = new FormData(form)
