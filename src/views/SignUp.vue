@@ -2,6 +2,7 @@
   <div class="container py-5">
     <form
       class="w-100"
+      :disabled="isProcessing"
       @submit.prevent.stop="handleSubmit"
     >
       <div class="text-center mb-4">
@@ -19,7 +20,7 @@
           type="text"
           class="form-control"
           placeholder="name"
-
+          required
           autofocus
         >
       </div>
@@ -33,6 +34,7 @@
           type="email"
           class="form-control"
           placeholder="email"
+          required
         >
       </div>
 
@@ -45,6 +47,7 @@
           type="password"
           class="form-control"
           placeholder="Password"
+          required
         >
       </div>
 
@@ -57,15 +60,15 @@
           type="password"
           class="form-control"
           placeholder="Password"
+          required
         >
       </div>
 
       <button
         class="btn btn-lg btn-primary btn-block mb-3"
         type="submit"
-        :disabled="isProcessing"
       >
-        Submit
+        {{ isProcessing ? '註冊中...' : 'Submit' }}
       </button>
 
       <div class="text-center mb-3">
@@ -100,11 +103,13 @@ export default {
   methods: {
     async handleSubmit(e) {
       try {
+        this.Processing = true
         if (!this.name || !this.email || !this.password || !this.passwordCheck) {
           Toast.fire({
             icon: 'warning',
             title: '所有欄位皆為必填'
           })
+          this.Processing = false
           return
         }
 
@@ -113,6 +118,7 @@ export default {
             icon: 'warning',
             title: 'Password與Password Check不符'
           })
+          this.Processing = false
           return
         }
 
@@ -129,6 +135,7 @@ export default {
             icon: 'warning',
             title: data.message
           })
+          // this.Processing = false
           // 其他錯誤，如：連線問題，丟給catch處理
           if (statusText !== 'OK') {
             throw new Error(statusText)
@@ -141,6 +148,7 @@ export default {
           this.$router.push('/signin')
         }
       } catch (error) {
+        this.Processing = false
         Toast.fire({
           icon: 'error',
           title: '無法註冊，請稍後再試'
