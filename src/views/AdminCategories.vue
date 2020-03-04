@@ -1,6 +1,5 @@
 <template>
   <div class="container py-5">
-    <!-- 1. 使用先前寫好的 AdminNav -->
     <AdminNav />
 
     <form class="my-4">
@@ -107,68 +106,79 @@
 <script>
 import AdminNav from '@/components/AdminNav'
 import { v4 as uuid } from 'uuid'
-//  2. 定義暫時使用的資料
-const dummyData = {
-  categories: [
-    {
-      id: 1,
-      name: '中式料理',
-      createdAt: '2019-06-22T09:00:43.000Z',
-      updatedAt: '2019-06-22T09:00:43.000Z'
-    },
-    {
-      id: 2,
-      name: '日本料理',
-      createdAt: '2019-06-22T09:00:43.000Z',
-      updatedAt: '2019-06-22T09:00:43.000Z'
-    },
-    {
-      id: 3,
-      name: '義大利料理',
-      createdAt: '2019-06-22T09:00:43.000Z',
-      updatedAt: '2019-06-22T09:00:43.000Z'
-    },
-    {
-      id: 4,
-      name: '墨西哥料理',
-      createdAt: '2019-06-22T09:00:43.000Z',
-      updatedAt: '2019-06-22T09:00:43.000Z'
-    }
-  ]
-}
+import adminAPI from '../apis/admin'
+import { Toast } from '../utils/helpers'
 
 export default {
   components: {
     AdminNav
   },
-  // 3. 定義 Vue 中使用的 data 資料
   data() {
     return {
       categories: [],
       newCategoryName: ''
     }
   },
-  // 5. 調用 `fetchCategories` 方法
   created() {
     this.fetchCategories()
   },
   methods: {
-    // 4. 定義 `fetchCategories` 方法，把 `dummyData` 帶入 Vue 物件
-    fetchCategories() {
-      this.categories = dummyData.categories.map(category => ({
-        ...category,
-        isEditing: false
-      }))
+    async fetchCategories() {
+      try {
+        const { data, statusText } = await adminAPI.categories.get()
+        if (statusText !== 'OK') {
+          throw new Error(statusText)
+        }
+        this.categories = data.categories.map(category => ({
+          ...category,
+          isEditing: false
+        }))
+      } catch (error) {
+        Toast.fire({
+          icon: 'error',
+          title: '無法取得類別清單，請稍後再試'
+        })
+      }
     },
-    createCategory(name) {
-      this.categories.push({
-        id: uuid(),
-        name: this.newCategoryName
-      })
-      this.newCategoryName = ''
+    async createCategory(name) {
+      try {
+        const { data, statusText } = await adminAPI.categories.create({ name: this.newCategoryName })
+        if (statusText !== 'OK' || data.status !== 'success') {
+          throw new Error(statusText)
+        }
+        this.categories.push({
+          id: data.categoryId,
+          name: this.newCategoryName
+        })
+        this.newCategoryName = ''
+        Toast.fire({
+          icon: 'success',
+          title: '類別新增成功'
+        })
+      } catch (error) {
+        Toast.fire({
+          icon: 'error',
+          title: '無法新增類別，請稍後再試'
+        })
+      }
     },
-    deleteCategory(categoryId) {
-      this.categories = this.categories.filter(category => category.id !== categoryId)
+    async deleteCategory(categoryId) {
+      try {
+        const { data, statusText } = await adminAPI.categories.delete({ categoryId })
+        if (statusText !== 'OK') {
+          throw new Error(statusText)
+        }
+        this.categories = this.categories.filter(category => category.id !== categoryId)
+        Toast.fire({
+          icon: 'success',
+          title: '類別刪除成功'
+        })
+      } catch (error) {
+        Toast.fire({
+          icon: 'error',
+          title: '無法刪除類別，請稍後再試'
+        })
+      }
     },
     toggleIsEditing(categoryId) {
       this.categories = this.categories.map(category => {
@@ -180,8 +190,23 @@ export default {
         }
       })
     },
-    updateCategory({ categoryId, name }) {
-      this.toggleIsEditing(categoryId)
+    async updateCategory({ categoryId, name }) {
+      try {
+        const { data, statusText } = await adminAPI.categories.update({ categoryId, name })
+        if (statusText !== 'OK' || data.status !== 'success') {
+          throw new Error(statusText)
+        }
+        this.toggleIsEditing(categoryId)
+        Toast.fire({
+          icon: 'success',
+          title: '類別更新成功'
+        })
+      } catch (error) {
+        Toast.fire({
+          icon: 'error',
+          title: '無法更新類別，請稍後再試'
+        })
+      }
     },
     handleCancel(categoryId) {
       this.categories = this.categories.map(category => {

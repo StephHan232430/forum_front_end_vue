@@ -72,8 +72,6 @@ export default {
   methods: {
     async fetchRestaurant(restaurantId) {
       try {
-        // const response = await adminAPI.restaurants.getDetail({ restaurantId })
-        // console.log(response)
         const { data: { restaurant }, statusText } = await adminAPI.restaurants.getDetail({ restaurantId })
         if (statusText !== 'OK') {
           throw new Error(statusText)
@@ -90,19 +88,6 @@ export default {
           title: '無法顯示餐廳詳細資訊，請稍後再試'
         })
       }
-
-      // const { restaurant } = dummyData
-      // this.restaurant = {
-      //   ...this.restaurant,
-      //   id: restaurant.id,
-      //   name: restaurant.name,
-      //   categoryName: restaurant.Category.name,
-      //   image: restaurant.image,
-      //   openingHours: restaurant.opening_hours,
-      //   tel: restaurant.tel,
-      //   address: restaurant.address,
-      //   description: restaurant.description
-      // }
     }
   }
 }
