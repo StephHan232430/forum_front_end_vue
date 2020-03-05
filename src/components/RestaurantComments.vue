@@ -6,7 +6,7 @@
 
     <div>
       <blockquote
-        v-for="comment in restaurantComments"
+        v-for="comment in comments"
         :key="comment.id"
         class="blockquote mb-0"
       >
@@ -35,16 +35,10 @@
 
 <script>
 import { fromNowFilter } from '../utils/mixins'
-const dummyUser = {
-  currentUser: {
-    id: 1,
-    name: '管理者',
-    email: 'root@example.com',
-    image: 'https://i.pravatar.cc/300',
-    isAdmin: true
-  },
-  isAuthenticated: true
-}
+import restaurantsAPI from '../apis/restaurants'
+import { Toast } from '../utils/helpers'
+import { mapState } from 'vuex'
+
 export default {
   mixins: [fromNowFilter],
   props: {
@@ -55,7 +49,18 @@ export default {
   },
   data() {
     return {
-      currentUser: dummyUser.currentUser
+      comments: this.restaurantComments
+    }
+  },
+  computed: {
+    ...mapState(['currentUser'])
+  },
+  watch: {
+    restaurantComments(comments) {
+      this.comments = {
+        ...this.comments,
+        ...comments
+      }
     }
   },
   methods: {

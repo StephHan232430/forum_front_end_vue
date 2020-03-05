@@ -22,6 +22,9 @@
 
 <script>
 import { v4 as uuid } from 'uuid'
+import restaurantsAPI from '../apis/restaurants'
+import { Toast } from '../utils/helpers'
+import { mapState } from 'vuex'
 export default {
   props: {
     restaurantId: {
@@ -35,13 +38,27 @@ export default {
     }
   },
   methods: {
-    handleSubmit() {
-      this.$emit('after-create-comment', {
-        commentId: uuid(),
-        restaurantId: this.restaurantId,
-        text: this.text
-      })
-      this.text = ''
+    async handleSubmit() {
+      try {
+        const { data, statusText } = await restaurantsAPI.addComment({
+          restaurantId: this.restaurantId,
+          text: this.text
+        })
+        if (statusText !== 'OK' || data.status !== 'success') {
+          throw new Error(statusText)
+        }
+        this.$emit('after-create-comment', {
+          commentId: data.commentId,
+          restaurantId: this.restaurantId,
+          text: this.text
+        })
+        this.text = ''
+      } catch (error) {
+        Toast.fire({
+          icon: 'error',
+          title: '無法新增評論，請稍後再試'
+        })
+      }
     }
   }
 }

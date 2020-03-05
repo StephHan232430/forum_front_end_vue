@@ -63,6 +63,7 @@ export default {
     async fetchRestaurant(restaurantId) {
       try {
         const { data, statusText } = await restaurantsAPI.getRestaurant({ restaurantId })
+        console.log(data.restaurant.Comments)
         if (statusText !== 'OK') {
           throw new Error(statusText)
         }
