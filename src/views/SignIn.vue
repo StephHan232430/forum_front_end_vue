@@ -90,6 +90,7 @@ export default {
         })
         const { data } = response
         localStorage.setItem('token', data.token)
+        this.$store.commit('setCurrentUser', data.user)
         this.$router.push('/restaurants')
       } catch (error) {
         this.password = ''

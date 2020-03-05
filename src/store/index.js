@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import usersAPI from '../apis/users'
 
 Vue.use(Vuex)
 
@@ -23,6 +24,28 @@ export default new Vuex.Store({
       state.isAuthenticated = true
     }
   },
-  actions: {},
+  actions: {
+    async fetchCurrentUser({ commit }) {
+      try {
+        const { data, statusText } = await usersAPI.getCurrentUser()
+
+        if (statusText !== 'OK') {
+          throw new Error(statusText)
+        }
+
+        commit('setCurrentUser', {
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          image: data.image,
+          isAdmin: data.isAdmin
+        })
+        return true
+      } catch (error) {
+        commit('revokeAuthentication')
+        return false
+      }
+    }
+  },
   modules: {}
 })
