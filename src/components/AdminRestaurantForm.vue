@@ -127,13 +127,15 @@ export default {
     initialRestaurant: {
       type: Object,
       default: () => ({
+        id: -1,
         name: '',
         categoryId: '',
         tel: '',
         address: '',
         description: '',
         image: '',
-        openingHours: ''
+        openingHours: '',
+        file: ''
       })
     },
     isProcessing: {
@@ -144,6 +146,7 @@ export default {
   data() {
     return {
       restaurant: {
+        id: -1,
         name: '',
         categoryId: '',
         tel: '',
@@ -158,7 +161,7 @@ export default {
   },
   watch: {
     initialRestaurant(restaurant) {
-      this.restautant = {
+      this.restaurant = {
         ...this.restaurant,
         ...restaurant
       }

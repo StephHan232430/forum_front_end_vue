@@ -47,7 +47,7 @@ export default {
     },
     update({ restaurantId, formData }) {
       return apiHelper.put(`/admin/restaurants/${restaurantId}`, formData, {
-        header: { Authorization: `Bearer ${getToken()}` }
+        headers: { Authorization: `Bearer ${getToken()}` }
       })
     }
   }
