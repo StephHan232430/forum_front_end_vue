@@ -22,12 +22,5 @@ export default {
     return apiHelper.get(`/restaurants/${restaurantId}`, {
       headers: { Authorization: `Bearer ${getToken()}` }
     })
-  },
-  addComment({ restaurantId, text }) {
-    return apiHelper.post(
-      '/comments',
-      { restaurantId, text },
-      { headers: { Authorization: `Bearer ${getToken()}` } }
-    )
   }
 }

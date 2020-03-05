@@ -21,6 +21,7 @@ import RestaurantDetail from './../components/RestaurantDetail'
 import RestaurantComments from '../components/RestaurantComments'
 import CreateComment from '../components/CreateComment'
 import restaurantsAPI from '../apis/restaurants'
+// import commentsAPI from '../apis/comments'
 import { Toast } from '../utils/helpers'
 import { mapState } from 'vuex'
 
@@ -63,7 +64,6 @@ export default {
     async fetchRestaurant(restaurantId) {
       try {
         const { data, statusText } = await restaurantsAPI.getRestaurant({ restaurantId })
-        console.log(data.restaurant.Comments)
         if (statusText !== 'OK') {
           throw new Error(statusText)
         }

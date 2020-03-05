@@ -22,9 +22,8 @@
 
 <script>
 import { v4 as uuid } from 'uuid'
-import restaurantsAPI from '../apis/restaurants'
+import commentsAPI from '../apis/comments'
 import { Toast } from '../utils/helpers'
-import { mapState } from 'vuex'
 export default {
   props: {
     restaurantId: {
@@ -40,7 +39,7 @@ export default {
   methods: {
     async handleSubmit() {
       try {
-        const { data, statusText } = await restaurantsAPI.addComment({
+        const { data, statusText } = await commentsAPI.addComment({
           restaurantId: this.restaurantId,
           text: this.text
         })

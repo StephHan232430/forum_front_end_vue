@@ -6,7 +6,7 @@
 
     <div>
       <blockquote
-        v-for="comment in comments"
+        v-for="comment in restaurantComments"
         :key="comment.id"
         class="blockquote mb-0"
       >
@@ -35,7 +35,7 @@
 
 <script>
 import { fromNowFilter } from '../utils/mixins'
-import restaurantsAPI from '../apis/restaurants'
+import commentsAPI from '../apis/comments'
 import { Toast } from '../utils/helpers'
 import { mapState } from 'vuex'
 
@@ -47,27 +47,27 @@ export default {
       required: true
     }
   },
-  data() {
-    return {
-      comments: this.restaurantComments
-    }
-  },
   computed: {
     ...mapState(['currentUser'])
   },
-  watch: {
-    restaurantComments(comments) {
-      this.comments = {
-        ...this.comments,
-        ...comments
-      }
-    }
-  },
   methods: {
-    handleDeleteButtonClick(commentId) {
-      console.log('handleDeleteButtonClick', commentId)
-
-      this.$emit('after-delete-comment', commentId)
+    async handleDeleteButtonClick(commentId) {
+      try {
+        const { data, statusText } = await commentsAPI.deleteComment({ commentId })
+        if (statusText !== 'OK' || data.status !== 'success') {
+          throw new Error(statusText)
+        }
+        Toast.fire({
+          icon: 'success',
+          title: '評論已刪除'
+        })
+        this.$emit('after-delete-comment', commentId)
+      } catch (error) {
+        Toast.fire({
+          icon: 'error',
+          title: '無法刪除評論，請稍後再試'
+        })
+      }
     }
   }
 }
