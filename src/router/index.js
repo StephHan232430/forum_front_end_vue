@@ -126,19 +126,14 @@ const router = new VueRouter({
 })
 
 router.beforeEach(async(to, from, next) => {
-  // 從 localStorage 取出 token
   const tokenInLocalStorage = localStorage.getItem('token')
   const tokenInStore = store.state.token
-  // 預設是尚未驗證
   let isAuthenticated = store.state.isAuthenticated
 
-  // 如果有 token 的話才驗證
   if (tokenInLocalStorage && tokenInLocalStorage !== tokenInStore) {
-    // 取得驗證成功與否
     isAuthenticated = await store.dispatch('fetchCurrentUser')
   }
 
-  // 對於不需要驗證 token 的頁面
   const pathsWithoutAuthentication = ['sign-up']
   if (pathsWithoutAuthentication.includes(to.name)) {
     next()
