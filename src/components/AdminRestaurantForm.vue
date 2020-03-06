@@ -1,6 +1,7 @@
 <template>
+  <Spinner v-if="isLoading" />
   <form
-    v-show="!isLoading"
+    v-else
     @submit.stop.prevent="handleSubmit"
   >
     <div class="form-group">
@@ -121,8 +122,12 @@
 <script>
 import adminAPI from '../apis/admin'
 import { Toast } from '../utils/helpers'
+import Spinner from './Spinner'
 
 export default {
+  components: {
+    Spinner
+  },
   props: {
     initialRestaurant: {
       type: Object,
@@ -177,8 +182,6 @@ export default {
   methods: {
     async fetchCategories() {
       try {
-        // 無論用何種方式到達/admin/restaurants/:id/edit，表單皆為空，但只要切換L178的是否為註解後，到瀏覽器等待畫面自行重整，表單就又能帶出餐廳資訊。但送出修改後，console卻出現Unauthorized。
-        this.isLoading = true
         const { data, statusText } = await adminAPI.categories.get()
         if (statusText !== 'OK') {
           throw new Error(statusText)

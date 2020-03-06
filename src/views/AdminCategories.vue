@@ -23,7 +23,11 @@
         </div>
       </div>
     </form>
-    <table class="table">
+    <Spinner v-if="isLoading" />
+    <table
+      v-else
+      class="table"
+    >
       <thead class="thead-dark">
         <tr>
           <th
@@ -108,15 +112,19 @@ import AdminNav from '@/components/AdminNav'
 import { v4 as uuid } from 'uuid'
 import adminAPI from '../apis/admin'
 import { Toast } from '../utils/helpers'
+import Spinner from '../components/Spinner'
 
 export default {
   components: {
-    AdminNav
+    AdminNav,
+    Spinner
   },
   data() {
     return {
       categories: [],
-      newCategoryName: ''
+      newCategoryName: '',
+      isProcessing: false,
+      isLoading: true
     }
   },
   created() {
@@ -133,7 +141,9 @@ export default {
           ...category,
           isEditing: false
         }))
+        this.isLoading = false
       } catch (error) {
+        this.isLoading = false
         Toast.fire({
           icon: 'error',
           title: '無法取得類別清單，請稍後再試'
@@ -142,20 +152,24 @@ export default {
     },
     async createCategory(name) {
       try {
+        this.isProcessing = true
         const { data, statusText } = await adminAPI.categories.create({ name: this.newCategoryName })
         if (statusText !== 'OK' || data.status !== 'success') {
           throw new Error(statusText)
         }
         this.categories.push({
           id: data.categoryId,
-          name: this.newCategoryName
+          name: this.newCategoryName,
+          isEditing: false
         })
+        this.isProcessing = false
         this.newCategoryName = ''
         Toast.fire({
           icon: 'success',
           title: '類別新增成功'
         })
       } catch (error) {
+        this.isProcessing = false
         Toast.fire({
           icon: 'error',
           title: '無法新增類別，請稍後再試'
