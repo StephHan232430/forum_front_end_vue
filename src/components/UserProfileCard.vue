@@ -24,7 +24,7 @@
           </ul>
           <p v-if="isCurrentUser">
             <router-link
-              :to="{ name: 'user-profile-edit', params: { id: currentUser.id } }"
+              :to="{ name: 'user-profile-edit', params: { id: user.id } }"
               role="button"
               class="btn btn-primary"
             >
@@ -36,7 +36,7 @@
               v-if="isFollowed"
               type="button"
               class="btn btn-danger"
-              @click.stop.prevent="deleteFollowing()"
+              @click.stop.prevent="deleteFollowing(user.id)"
             >
               取消追蹤
             </button>
@@ -44,7 +44,7 @@
               v-else
               type="button"
               class="btn btn-primary"
-              @click.stop.prevent="addFollowing()"
+              @click.stop.prevent="addFollowing(user.id)"
             >
               追蹤
             </button>
@@ -56,6 +56,8 @@
 </template>
 
 <script>
+import usersAPI from '../apis/users'
+import { Toast } from '../utils/helpers'
 export default {
   props: {
     user: {
@@ -69,10 +71,6 @@ export default {
     initialIsFollowed: {
       type: Boolean,
       required: true
-    },
-    currentUser: {
-      type: Object,
-      required: true
     }
   },
   data() {
@@ -80,12 +78,39 @@ export default {
       isFollowed: this.initialIsFollowed
     }
   },
+  watch: {
+    initialIsFollowed(isFollowed) {
+      this.isFollowed = isFollowed
+    }
+  },
   methods: {
-    addFollowing() {
-      this.isFollowed = true
+    async addFollowing(userId) {
+      try {
+        const { data, statusText } = await usersAPI.addFollowing({ userId })
+        if (statusText !== 'OK' || data.status !== 'success') {
+          throw new Error(statusText)
+        }
+        this.isFollowed = true
+      } catch (error) {
+        Toast.fire({
+          icon: 'error',
+          title: '無法追蹤使用者，請稍後再試'
+        })
+      }
     },
-    deleteFollowing() {
-      this.isFollowed = false
+    async deleteFollowing(userId) {
+      try {
+        const { data, statusText } = await usersAPI.deleteFollowing({ userId })
+        if (statusText !== 'OK' || data.status !== 'success') {
+          throw new Error(statusText)
+        }
+        this.isFollowed = false
+      } catch (error) {
+        Toast.fire({
+          icon: 'error',
+          title: '無法取消追蹤使用者，請稍後再試'
+        })
+      }
     }
   }
 }
